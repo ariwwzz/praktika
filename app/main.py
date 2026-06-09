@@ -1,28 +1,15 @@
-from app.db.db import SessionLocal
-from app.db import crud
+from fastapi import FastAPI
+from app.api import categories, books
 
-db = SessionLocal()
+app = FastAPI(
+    title="Book API",
+    description="API для управления книгами и категориями",
+    version="1.0.0"
+)
 
-print("=" * 50)
-print("СПИСОК КАТЕГОРИЙ")
-print("=" * 50)
+app.include_router(categories.router)
+app.include_router(books.router)
 
-categories = crud.get_categories(db)
-for cat in categories:
-    print(f"{cat.id}. {cat.title}")
-    books = crud.get_books_by_category(db, cat.id)
-    for book in books:
-        print(f"   - {book.title} ({book.price} руб.)")
-        if book.description:
-            print(f"     Описание: {book.description[:50]}...")
-    print()
-
-print("=" * 50)
-print("ВСЕ КНИГИ")
-print("=" * 50)
-
-all_books = crud.get_books(db)
-for book in all_books:
-    print(f"'{book.title}' - категория: {book.category.title} - {book.price} руб.")
-
-db.close()
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "message": "Сервер работает"}
