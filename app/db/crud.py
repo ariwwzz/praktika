@@ -35,3 +35,49 @@ def get_books_by_category(db: Session, category_id: int):
 
 def get_book_by_id(db: Session, book_id: int):
     return db.query(models.Book).filter(models.Book.id == book_id).first()
+
+
+
+
+
+
+
+
+
+
+    #UPDATE для категорий
+def update_category(db, category_id, new_title):
+    category = db.query(models.Category).filter(models.Category.id == category_id).first()
+    if category:
+        category.title = new_title
+        db.commit()
+        db.refresh(category)
+    return category
+
+#DELETE для категорий
+def delete_category(db, category_id):
+    category = db.query(models.Category).filter(models.Category.id == category_id).first()
+    if category:
+        db.delete(category)
+        db.commit()
+    return category
+
+#UPDATE для книг
+def update_book(db, book_id, title, description, price, category_id):
+    book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    if book:
+        book.title = title
+        book.description = description
+        book.price = price
+        book.category_id = category_id
+        db.commit()
+        db.refresh(book)
+    return book
+
+#DELETE для книг
+def delete_book(db, book_id):
+    book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    if book:
+        db.delete(book)
+        db.commit()
+    return book
