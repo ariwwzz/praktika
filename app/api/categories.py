@@ -32,23 +32,16 @@ def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
 
 @router.put("/{category_id}", response_model=CategoryResponse)
 def update_category(category_id: int, category: CategoryUpdate, db: Session = Depends(get_db)):
-    db_category = crud.get_category_by_id(db, category_id)
-    if not db_category:
+    
+    updated = crud.update_category(db, category_id, category.title)
+    if not updated:
         raise HTTPException(status_code=404, detail="Категория не найдена")
-    
-    if category.title is not None:
-        db_category.title = category.title
-    
-    db.commit()
-    db.refresh(db_category)
-    return db_category
+    return updated
 
 @router.delete("/{category_id}", status_code=204)
 def delete_category(category_id: int, db: Session = Depends(get_db)):
-    category = crud.get_category_by_id(db, category_id)
-    if not category:
+   
+    deleted = crud.delete_category(db, category_id)
+    if not deleted:
         raise HTTPException(status_code=404, detail="Категория не найдена")
-    
-    db.delete(category)
-    db.commit()
     return None

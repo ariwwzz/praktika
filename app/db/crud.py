@@ -1,18 +1,13 @@
 from sqlalchemy.orm import Session
 from . import models
 
+#CREATE
 def create_category(db: Session, title: str):
     new_category = models.Category(title=title)
     db.add(new_category)
     db.commit()
     db.refresh(new_category)
     return new_category
-
-def get_categories(db: Session):
-    return db.query(models.Category).all()
-
-def get_category_by_id(db: Session, category_id: int):
-    return db.query(models.Category).filter(models.Category.id == category_id).first()
 
 def create_book(db: Session, title: str, description: str, price: float, category_id: int, url: str = ""):
     new_book = models.Book(
@@ -27,6 +22,13 @@ def create_book(db: Session, title: str, description: str, price: float, categor
     db.refresh(new_book)
     return new_book
 
+#READ
+def get_categories(db: Session):
+    return db.query(models.Category).all()
+
+def get_category_by_id(db: Session, category_id: int):
+    return db.query(models.Category).filter(models.Category.id == category_id).first()
+
 def get_books(db: Session):
     return db.query(models.Book).all()
 
@@ -36,16 +38,7 @@ def get_books_by_category(db: Session, category_id: int):
 def get_book_by_id(db: Session, book_id: int):
     return db.query(models.Book).filter(models.Book.id == book_id).first()
 
-
-
-
-
-
-
-
-
-
-    #UPDATE для категорий
+#UPDATE
 def update_category(db, category_id, new_title):
     category = db.query(models.Category).filter(models.Category.id == category_id).first()
     if category:
@@ -54,7 +47,24 @@ def update_category(db, category_id, new_title):
         db.refresh(category)
     return category
 
-#DELETE для категорий
+def update_book(db, book_id, title, description, price, category_id, url=None):
+    book = db.query(models.Book).filter(models.Book.id == book_id).first()
+    if book:
+        if title is not None:
+            book.title = title
+        if description is not None:
+            book.description = description
+        if price is not None:
+            book.price = price
+        if category_id is not None:
+            book.category_id = category_id
+        if url is not None:
+            book.url = url
+        db.commit()
+        db.refresh(book)
+    return book
+
+#DELETE
 def delete_category(db, category_id):
     category = db.query(models.Category).filter(models.Category.id == category_id).first()
     if category:
@@ -62,19 +72,6 @@ def delete_category(db, category_id):
         db.commit()
     return category
 
-#UPDATE для книг
-def update_book(db, book_id, title, description, price, category_id):
-    book = db.query(models.Book).filter(models.Book.id == book_id).first()
-    if book:
-        book.title = title
-        book.description = description
-        book.price = price
-        book.category_id = category_id
-        db.commit()
-        db.refresh(book)
-    return book
-
-#DELETE для книг
 def delete_book(db, book_id):
     book = db.query(models.Book).filter(models.Book.id == book_id).first()
     if book:

@@ -48,35 +48,24 @@ def create_book(book: BookCreate, db: Session = Depends(get_db)):
 
 @router.put("/{book_id}", response_model=BookResponse)
 def update_book(book_id: int, book: BookUpdate, db: Session = Depends(get_db)):
-    db_book = crud.get_book_by_id(db, book_id)
-    if not db_book:
+    
+    updated = crud.update_book(
+        db,
+        book_id,
+        title=book.title,
+        description=book.description,
+        price=book.price,
+        category_id=book.category_id,
+        url=book.url  
+    )
+    if not updated:
         raise HTTPException(status_code=404, detail="Книга не найдена")
-    
-    if book.category_id is not None:
-        category = crud.get_category_by_id(db, book.category_id)
-        if not category:
-            raise HTTPException(status_code=404, detail="Категория не найдена")
-        db_book.category_id = book.category_id
-    
-    if book.title is not None:
-        db_book.title = book.title
-    if book.description is not None:
-        db_book.description = book.description
-    if book.price is not None:
-        db_book.price = book.price
-    if book.url is not None:
-        db_book.url = book.url
-    
-    db.commit()
-    db.refresh(db_book)
-    return db_book
+    return updated
 
 @router.delete("/{book_id}", status_code=204)
 def delete_book(book_id: int, db: Session = Depends(get_db)):
-    book = crud.get_book_by_id(db, book_id)
-    if not book:
-        raise HTTPException(status_code=404, detail="Книга не найдена")
     
-    db.delete(book)
-    db.commit()
+    deleted = crud.delete_book(db, book_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Книга не найдена")
     return None
