@@ -2,18 +2,11 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
-from app.db.db import SessionLocal
+from app.db.db import get_db  
 from app.db import crud
 from app.schemas import BookCreate, BookUpdate, BookResponse
 
 router = APIRouter(prefix="/books", tags=["Books"])
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 @router.get("/", response_model=List[BookResponse])
 def get_books(
@@ -48,7 +41,6 @@ def create_book(book: BookCreate, db: Session = Depends(get_db)):
 
 @router.put("/{book_id}", response_model=BookResponse)
 def update_book(book_id: int, book: BookUpdate, db: Session = Depends(get_db)):
-    
     updated = crud.update_book(
         db,
         book_id,
@@ -64,7 +56,6 @@ def update_book(book_id: int, book: BookUpdate, db: Session = Depends(get_db)):
 
 @router.delete("/{book_id}", status_code=204)
 def delete_book(book_id: int, db: Session = Depends(get_db)):
-    
     deleted = crud.delete_book(db, book_id)
     if not deleted:
         raise HTTPException(status_code=404, detail="Книга не найдена")
